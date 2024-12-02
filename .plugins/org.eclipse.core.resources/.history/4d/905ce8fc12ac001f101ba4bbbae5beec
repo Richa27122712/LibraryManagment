@@ -1,0 +1,5 @@
+package library.Managemnt.library.Exceptions;
+
+public class UserAlreadyHasBookException {
+
+}

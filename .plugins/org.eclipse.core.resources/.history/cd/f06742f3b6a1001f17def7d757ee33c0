@@ -1,0 +1,95 @@
+package library.Managemnt.library.bookService;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import library.Managemnt.library.Repository.BookIssueRepository;
+import library.Managemnt.library.Repository.BookRepository;
+import library.Managemnt.library.Repository.UserRepository;
+import library.Managemnt.library.entity.Book;
+import library.Managemnt.library.entity.BookIssue;
+import library.Managemnt.library.entity.User;
+
+@Service
+public class BookIssueServiceImpl implements BookIsssueService {
+
+	
+	@Autowired
+	private BookIssueRepository bookIssueRepository;
+	
+	 @Autowired
+	    private BookRepository bookRepository;
+	    
+	    @Autowired
+	    private UserRepository userRepository;
+	
+	
+	    public String getDueDays(int bookIssueId){
+			
+			Optional<BookIssue> bookIssueOptional=bookIssueRepository.findById(bookIssueId);
+			if(!bookIssueOptional.isPresent()){
+				throw new RuntimeException("Record not find");
+			}
+			BookIssue bookIssue=bookIssueOptional.get();
+			LocalDate today=LocalDate.now();
+			LocalDate returnDate=bookIssue.getReturnDate();
+			  long days = ChronoUnit.DAYS.between(today, returnDate);
+			  
+				String message;
+					if(days<0) {
+						return "overdue days" + Math.abs(days);
+					}else {
+						return "due days =" + days;
+					}
+		
+		}
+	
+	
+	
+	public BookIssue SaveBookIssue(int bookId,int userId,int loanPeriodDays) {
+		
+		Optional<Book> bookOptional=bookRepository.findById(bookId);
+		if(!bookOptional.isPresent()){
+			throw  new RuntimeException("book not found");
+		}
+		Optional<User> userOptional=userRepository.findById(userId);
+		if(!userOptional.isPresent()) {
+			throw new RuntimeException("user not found");
+			
+		}
+		
+		Book book=bookOptional.get();
+		User user=userOptional.get();
+		
+		BookIssue bookIssue=new BookIssue();
+		bookIssue.setBook(book);
+		bookIssue.setUser(user);
+		
+		LocalDate  issueDate=LocalDate.now();
+		bookIssue.setIssueDate(issueDate);
+		
+		LocalDate returnDate=issueDate.plusDays(loanPeriodDays);
+		bookIssue.setReturnDate(returnDate);
+		
+		bookIssue.setStatus("issued");
+		
+		return bookIssueRepository.save(bookIssue);
+	}
+
+
+
+	@Override
+	public List<BookIssue> GetAll() {
+		BookIssue bookIssue=bookIssueRepository.findById();
+		return null;
+	}
+	
+	}
+	
+	
+}

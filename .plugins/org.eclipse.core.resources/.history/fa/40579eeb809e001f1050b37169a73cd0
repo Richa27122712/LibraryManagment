@@ -1,0 +1,9 @@
+package library.Managemnt.library;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import library.Managemnt.entity.BookIssue;
+
+public interface BookIssueRepository extends JpaRepository<BookIssue,Integer> {
+
+}
